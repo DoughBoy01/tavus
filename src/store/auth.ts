@@ -1,5 +1,7 @@
 import { atom } from 'jotai';
 import { supabase } from '@/lib/supabase';
+import { Session } from '@supabase/supabase-js';
+import { logger } from '@/utils/logger';
 
 type UserProfile = {
   id: string;
@@ -11,7 +13,7 @@ type UserProfile = {
   updated_at: string;
 };
 
-export const userSessionAtom = atom<any>(null);
+export const userSessionAtom = atom<Session | null>(null);
 export const userProfileAtom = atom<UserProfile | null>(null);
 export const isLoadingAtom = atom<boolean>(false);
 export const authErrorAtom = atom<string | null>(null);
@@ -26,7 +28,7 @@ export const loginAtom = atom(
   null,
   async (_get, set, { email, password }: { email: string; password: string }) => {
     try {
-      console.log('Attempting login with email:', email);
+      logger.debug('Attempting login', { email });
       if (!email || !password) {
         set(authErrorAtom, 'Email and password are required');
         return false;
@@ -41,12 +43,12 @@ export const loginAtom = atom(
       });
 
       if (error) {
-        console.error('Login error:', error);
+        logger.error('Login error', error);
         set(authErrorAtom, 'Invalid email or password');
         return false;
       }
 
-      console.log('Login successful, session:', data.session);
+      logger.info('Login successful');
       set(userSessionAtom, data.session);
 
       // Fetch user profile
@@ -58,19 +60,19 @@ export const loginAtom = atom(
           .single();
 
         if (profileError) {
-          console.error('Error fetching profile after login:', profileError);
+          logger.error('Error fetching profile after login', profileError);
           set(authErrorAtom, 'Error loading user profile');
           return false;
         }
 
-        console.log('User profile loaded after login:', profile);
+        logger.debug('User profile loaded after login');
         set(userProfileAtom, profile);
         return true;
       }
 
       return false;
     } catch (error) {
-      console.error('Unexpected login error:', error);
+      logger.error('Unexpected login error', error);
       set(authErrorAtom, 'Login failed due to an unexpected error');
       return false;
     } finally {
@@ -100,7 +102,7 @@ export const registerAtom = atom(
     }
   ) => {
     try {
-      console.log('Attempting registration with email:', email);
+      logger.debug('Attempting registration', { email });
       set(isLoadingAtom, true);
       set(authErrorAtom, null);
 
@@ -117,12 +119,12 @@ export const registerAtom = atom(
       });
 
       if (error) {
-        console.error('Registration error:', error);
+        logger.error('Registration error', error);
         set(authErrorAtom, error.message);
         return false;
       }
 
-      console.log('Registration successful, user:', data.user);
+      logger.info('Registration successful');
 
       // Create profile record
       if (data.user) {
@@ -135,7 +137,7 @@ export const registerAtom = atom(
         });
 
         if (profileError) {
-          console.error('Error creating profile:', profileError);
+          logger.error('Error creating profile', profileError);
           set(authErrorAtom, profileError.message);
           return false;
         }
@@ -154,7 +156,7 @@ export const registerAtom = atom(
 
       return true;
     } catch (error) {
-      console.error('Unexpected registration error:', error);
+      logger.error('Unexpected registration error', error);
       set(authErrorAtom, 'Registration failed due to an unexpected error');
       return false;
     } finally {
@@ -166,14 +168,14 @@ export const registerAtom = atom(
 // Logout atom
 export const logoutAtom = atom(null, async (_get, set) => {
   try {
-    console.log('Attempting logout');
+    logger.debug('Attempting logout');
     await supabase.auth.signOut();
-    console.log('Logout successful');
+    logger.info('Logout successful');
     set(userSessionAtom, null);
     set(userProfileAtom, null);
     return true;
   } catch (error) {
-    console.error('Logout error:', error);
+    logger.error('Logout error', error);
     return false;
   }
 });
