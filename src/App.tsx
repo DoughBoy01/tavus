@@ -17,7 +17,7 @@ import {
 // Admin dashboard imports
 import { Dashboard } from "./screens/admin/Dashboard";
 import { LawFirmDashboard } from "./screens/admin/LawFirmDashboard";
-import { LeadsManagement } from "./screens/admin/LeadsManagement";
+import { LeadManagement } from "./screens/admin/LeadManagement";
 import { ConversationsManagement } from "./screens/admin/ConversationsManagement";
 import { MatchesView } from "./screens/admin/MatchesView";
 import { ProfileManagement } from "./screens/admin/ProfileManagement";
@@ -27,6 +27,7 @@ import { UserManagementPage } from "./screens/admin/UserManagementPage";
 // New lead management components
 import { FirmDashboard } from "./screens/admin/FirmDashboard";
 import { FirmSettings } from "./screens/admin/FirmSettings";
+import { BillingDashboard } from "./screens/admin/BillingDashboard";
 import { LeadDistributionDashboard } from "./screens/admin/LeadDistributionDashboard";
 
 // Auth components
@@ -116,11 +117,21 @@ function App() {
         }
       />
       <Route
+        path="/admin/billing"
+        element={
+          <LegalAdminRoute>
+            <AdminLayout>
+              <BillingDashboard />
+            </AdminLayout>
+          </LegalAdminRoute>
+        }
+      />
+      <Route
         path="/admin/leads"
         element={
           <LegalAdminRoute>
             <AdminLayout>
-              <LeadsManagement />
+              <LeadManagement />
             </AdminLayout>
           </LegalAdminRoute>
         }
