@@ -2,6 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAtom } from 'jotai';
 import { isAuthenticatedAtom, isLoadingAtom } from '@/store/auth';
 import React from 'react';
+import { logger } from '@/utils/logger';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -20,10 +21,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    console.log('ProtectedRoute: User not authenticated, redirecting to login');
+    logger.debug('ProtectedRoute: User not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
-  console.log('ProtectedRoute: User is authenticated, rendering protected content');
+  logger.debug('ProtectedRoute: User is authenticated, rendering protected content');
   return <>{children}</>;
 };
